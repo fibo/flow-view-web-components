@@ -15,18 +15,19 @@
 <body>
   <div class="container">
     <fv-canvas>
-      <fv-node x="100" y="100" width="100" height="40">
-        <fv-pins-bar>
+      <fv-node x="100" y="100" width="100" height="40" label="Yay">
+        <div slot="outputs">
+          <fv-pin></fv-pin>
+        </div>
+
+        <div slot="inputs">
           <fv-pin></fv-pin>
 
           <fv-pin></fv-pin>
-        </fv-pins-bar>
+        </div>
+      </fv-node>
 
-        Node
-
-        <fv-pins-bar>
-          <fv-pin></fv-pin>
-        </fv-pins-bar>
+      <fv-node x="200" y="200" width="100" height="40">
       </fv-node>
     </fv-canvas>
   </div>

@@ -12,9 +12,30 @@ export class FlowViewNode extends HTMLElement {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          border: 1px solid transparent;
+        }
+
+        :host(:hover) {
+          border: 1px solid black;
+        }
+
+        ::slotted(div[slot="inputs"]),
+        ::slotted(div[slot="outputs"]) {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          / *min-height: --fv-pin-size; */
+          height: 15px;
         }
       </style>
+
+      <slot name="inputs"></slot>
+
+      <div>${this.label}</div>
+
       <slot></slot>
+
+      <slot name="outputs"></slot>
     `
 
     this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
@@ -22,10 +43,9 @@ export class FlowViewNode extends HTMLElement {
 
   static get observedAttributes() {
     return [
-      /* position */
-      'x', 'y',
-      /* dimension */
-      'width', 'height'
+      /* position */ 'x', 'y',
+      /* dimension */ 'width', 'height',
+      'label'
     ]
   }
 
@@ -33,31 +53,42 @@ export class FlowViewNode extends HTMLElement {
     if (oldValue === newValue) return
 
     switch (name) {
+      case 'label': {
+        this.label = newValue
+        break
+      }
       case 'y':
       case 'x': {
-        const num = Math.round(newValue);
+        const num = Math.round(newValue)
 
         if (typeof num === 'number') {
-          if (name === 'y') this.style.top = `${num}px`;
-          if (name === 'x') this.style.left = `${num}px`;
+          if (name === 'y') this.style.top = `${num}px`
+          if (name === 'x') this.style.left = `${num}px`
         }
 
-        break;
+        break
       }
 
       case 'width':
       case 'height': {
-        const { scale } = this;
+        const { scale } = this
 
-        const num = Math.round(newValue * scale);
+        const num = Math.round(newValue * scale)
 
         if (typeof num === 'number' && num >= 0) {
-          this.style[name] = `${num}px`;
+          this.style[name] = `${num}px`
         }
 
-        break;
+        break
       }
     }
+  }
+
+  get label () {
+    return this.getAttribute('label') || ''
+  }
+  set label (value) {
+    this.setAttribute('label', value)
   }
 
   get scale () {

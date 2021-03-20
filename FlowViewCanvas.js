@@ -7,12 +7,18 @@ export class FlowViewCanvas extends HTMLElement {
       <style>
         :host {
           --fv-shadow-color: rgba(0, 0, 0, 0.17);
+          --fv-pin-size: 10px;
+
           display: block;
           background-color: var(--fv-canvas-background-color, #fefefe);
           box-shadow: 1px 1px 7px 1px var(--fv-shadow-color);
           width: 100%;
           height: 100%;
           position: relative;
+        }
+
+        :host([hidden]) {
+          display: none;
         }
       </style>
       <slot></slot>
