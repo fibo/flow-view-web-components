@@ -10,6 +10,7 @@ export class FlowViewCanvas extends HTMLElement {
           --fv-pin-size: 10px;
 
           display: block;
+          overflow: hidden;
           background-color: var(--fv-canvas-background-color, #fefefe);
           box-shadow: 1px 1px 7px 1px var(--fv-shadow-color);
           width: 100%;

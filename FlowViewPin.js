@@ -17,4 +17,16 @@ export class FlowViewPin extends HTMLElement {
 
     this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
   }
+
+  connectedCallback () {
+    this.addEventListener('pointerdown', this.onpointerdown)
+  }
+
+  disconnectedCallback () {
+    this.removeEventListener('pointerdown', this.onpointerdown)
+  }
+
+  onpointerdown (event) {
+    event.stopPropagation()
+  }
 }

@@ -84,14 +84,61 @@ export class FlowViewNode extends HTMLElement {
     }
   }
 
+  connectedCallback () {
+    this.addEventListener('pointerdown', this.onpointerdown)
+  }
+
+  disconnectedCallback () {
+    this.removeEventListener('pointerdown', this.onpointerdown)
+  }
+
+  onpointerdown (event) {
+    const { clientX, clientY, pageX, pageY } = event
+
+    const { canvas } = this
+
+    const { left, top } = this.getBoundingClientRect()
+
+    const shiftX = clientX - left
+    const shiftY = clientY - top
+
+    const canvasOnpointermove = (event) => {
+      const { pageX, pageY } = event
+
+      this.setAttribute('x', Math.round(pageX - shiftX))
+      this.setAttribute('y', Math.round(pageY - shiftY))
+    }
+
+    const removeListeners = () => {
+      canvas.removeEventListener('pointermove', canvasOnpointermove)
+
+      canvas.removeEventListener('pointerleave', removeListeners)
+      canvas.removeEventListener('pointerup', removeListeners)
+    }
+
+    canvas.addEventListener('pointermove', canvasOnpointermove)
+
+    canvas.addEventListener('pointerleave', removeListeners)
+    canvas.addEventListener('pointerup', removeListeners)
+  }
+
+  get canvas () {
+    const { parentNode } = this
+
+    if (parentNode && parentNode.tagName === 'FV-CANVAS') {
+      return parentNode
+    }
+  }
+
   get label () {
     return this.getAttribute('label') || ''
-  }
-  set label (value) {
-    this.setAttribute('label', value)
   }
 
   get scale () {
     return 1
+  }
+
+  set label (value) {
+    this.setAttribute('label', value)
   }
 }
