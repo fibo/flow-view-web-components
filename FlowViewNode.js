@@ -24,8 +24,6 @@ export class FlowViewNode extends HTMLElement {
           display: flex;
           flex-direction: row;
           justify-content: space-between;
-          / *min-height: --fv-pin-size; */
-          height: 15px;
         }
       </style>
 
@@ -45,7 +43,8 @@ export class FlowViewNode extends HTMLElement {
     return [
       /* position */ 'x', 'y',
       /* dimension */ 'width', 'height',
-      'label'
+      'label',
+      'id'
     ]
   }
 
@@ -57,6 +56,15 @@ export class FlowViewNode extends HTMLElement {
         this.label = newValue
         break
       }
+
+      // The `id` attribute cannot be changed.
+      case 'id': {
+        if (oldValue !== null && newValue !== this._id) {
+          this.setAttribute('id', this._id)
+        }
+        break
+      }
+
       case 'y':
       case 'x': {
         const num = Math.round(newValue)
@@ -71,12 +79,16 @@ export class FlowViewNode extends HTMLElement {
 
       case 'width':
       case 'height': {
-        const { scale } = this
-
-        const num = Math.round(newValue * scale)
+        const num = Math.round(newValue)
+        const { minSize } = this
 
         if (typeof num === 'number' && num >= 0) {
-          this.style[name] = `${num}px`
+          // Use `minSize` if any.
+          if (typeof minSize === 'number' && minSize > num) {
+            this.setAttribute(name, minSize)
+          } else {
+            this.style[name] = `${num}px`
+          }
         }
 
         break
@@ -85,11 +97,24 @@ export class FlowViewNode extends HTMLElement {
   }
 
   connectedCallback () {
-    this.addEventListener('pointerdown', this.onpointerdown)
+    const { canvas } = this
+
+    if (canvas) {
+      this.addEventListener('pointerdown', this.onpointerdown)
+
+      // Set a readonly id.
+      const id = canvas.generateId()
+      Object.defineProperty(this, '_id', { value: id, writable: false })
+      this.setAttribute('id', id)
+    }
   }
 
   disconnectedCallback () {
-    this.removeEventListener('pointerdown', this.onpointerdown)
+    const { canvas } = this
+
+    if (canvas) {
+      this.removeEventListener('pointerdown', this.onpointerdown)
+    }
   }
 
   onpointerdown (event) {
@@ -130,12 +155,16 @@ export class FlowViewNode extends HTMLElement {
     }
   }
 
-  get label () {
-    return this.getAttribute('label') || ''
+  get minSize () {
+    const { canvas } = this
+
+    if (canvas) {
+      return canvas.pinSize * 4
+    }
   }
 
-  get scale () {
-    return 1
+  get label () {
+    return this.getAttribute('label') || ''
   }
 
   set label (value) {

@@ -7,7 +7,7 @@ export class FlowViewCanvas extends HTMLElement {
       <style>
         :host {
           --fv-shadow-color: rgba(0, 0, 0, 0.17);
-          --fv-pin-size: 10px;
+          --fv-pin-size: ${this.pinSize}px;
 
           display: block;
           overflow: hidden;
@@ -26,5 +26,21 @@ export class FlowViewCanvas extends HTMLElement {
       `
 
     this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
+  }
+
+  get pinSize () {
+    return 10
+  }
+
+  generateId (prefix = 'fv') {
+    const randomString =  Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5)
+
+    const id = `${prefix}:${randomString}`
+
+    if (document.getElementById(id)) {
+      return this.generateId()
+    } else {
+      return id
+    }
   }
 }
