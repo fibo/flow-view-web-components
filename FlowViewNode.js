@@ -1,3 +1,5 @@
+import { findCanvasOf } from './mixins.js'
+
 export class FlowViewNode extends HTMLElement {
   constructor() {
     super()
@@ -6,6 +8,7 @@ export class FlowViewNode extends HTMLElement {
     template.innerHTML = `
       <style>
         :host {
+          box-sizing: border-box;
           background-color: var(--fv-node-background-color, #fefefe);
           position: absolute;
           box-shadow: 1px 1px 7px 1px var(--fv-shadow-color);
@@ -13,10 +16,6 @@ export class FlowViewNode extends HTMLElement {
           flex-direction: column;
           justify-content: space-between;
           border: 1px solid transparent;
-        }
-
-        :host(:hover) {
-          border: 1px solid black;
         }
 
         ::slotted(div[slot="inputs"]),
@@ -42,7 +41,7 @@ export class FlowViewNode extends HTMLElement {
   static get observedAttributes() {
     return [
       /* position */ 'x', 'y',
-      /* dimension */ 'width', 'height',
+      /* dimensions */ 'width', 'height',
       'label',
       'id'
     ]
@@ -97,15 +96,31 @@ export class FlowViewNode extends HTMLElement {
   }
 
   connectedCallback () {
-    const { canvas } = this
+    const { canvas, minSize } = this
 
     if (canvas) {
       this.addEventListener('pointerdown', this.onpointerdown)
 
       // Set a readonly id.
-      const id = canvas.generateId()
+      const id = this.id || canvas.generateId()
       Object.defineProperty(this, '_id', { value: id, writable: false })
       this.setAttribute('id', id)
+    }
+
+    // Make sure dimensions are defined.
+    if (!this.getAttribute('width')) {
+      this.setAttribute('width', minSize)
+    }
+    if (!this.getAttribute('height')) {
+      this.setAttribute('height', minSize)
+    }
+
+    // Make sure position is defined.
+    if (!this.getAttribute('x')) {
+      this.setAttribute('x', 0)
+    }
+    if (!this.getAttribute('y')) {
+      this.setAttribute('y', 0)
     }
   }
 
@@ -148,11 +163,7 @@ export class FlowViewNode extends HTMLElement {
   }
 
   get canvas () {
-    const { parentNode } = this
-
-    if (parentNode && parentNode.tagName === 'FV-CANVAS') {
-      return parentNode
-    }
+    return findCanvasOf(this)
   }
 
   get minSize () {

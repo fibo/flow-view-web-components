@@ -1,3 +1,5 @@
+import { FlowViewPin } from './FlowViewPin.js'
+
 export class FlowViewCanvas extends HTMLElement {
   constructor() {
     super()
@@ -22,6 +24,9 @@ export class FlowViewCanvas extends HTMLElement {
           display: none;
         }
       </style>
+
+      <svg></svg>
+
       <slot></slot>
       `
 

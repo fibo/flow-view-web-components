@@ -1,15 +1,18 @@
+import { findNodeOfPin, sizeOfPin } from './mixins.js'
+
 export class FlowViewPin extends HTMLElement {
   constructor() {
     super()
+
+    const size = sizeOfPin(this)
 
     const template = document.createElement('template')
     template.innerHTML = `
       <style>
         :host {
-          display: block;
           background-color: var(--fv-pin-background-color, #dbdbdb);
-          width: var(--fv-pin-size, 10px);
-          height: var(--fv-pin-size, 10px);
+          width: ${size}px;
+          height: ${size}px;
         }
       </style>
       <slot></slot>
@@ -18,7 +21,7 @@ export class FlowViewPin extends HTMLElement {
     this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true))
   }
 
-  static get observedAttributes() {
+  static get observedAttributes () {
     return [
       'id'
     ]
@@ -46,7 +49,7 @@ export class FlowViewPin extends HTMLElement {
 
       // Set a readonly id, prefixed by node id.
       const idPrefix = node.id
-      const id = node.canvas.generateId(idPrefix)
+      const id = this.id || node.canvas.generateId(idPrefix)
       Object.defineProperty(this, '_id', { value: id, writable: false })
       this.setAttribute('id', id)
     }
@@ -65,16 +68,6 @@ export class FlowViewPin extends HTMLElement {
   }
 
   get node () {
-    const { parentNode } = this
-
-    if (parentNode.tagName === 'DIV' && (
-      ['inputs', 'outputs'].includes(parentNode.slot)
-    )) {
-      const grandParentNode = parentNode.parentNode
-
-      if (grandParentNode.tagName === 'FV-NODE') {
-        return grandParentNode
-      }
-    }
+    return findNodeOfPin(this)
   }
 }
